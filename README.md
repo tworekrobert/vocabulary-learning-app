@@ -2,7 +2,7 @@
 
 # Vocabulary Learning App
 
-**University group project Django web application for creating vocabulary sets, learning with flashcards, practicing typed answers, generating quizzes and tracking study progress.**
+**Team-built Django web application for creating vocabulary sets, learning with flashcards, practicing typed answers, generating quizzes and tracking study progress.**
 
 <p>
   <img src="https://img.shields.io/badge/Python-Django-7C3AED?style=for-the-badge&logo=python&logoColor=white" alt="Python and Django">
