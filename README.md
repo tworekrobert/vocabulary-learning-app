@@ -57,7 +57,7 @@ The project was developed by a five-person team. It is presented here as a GitHu
 | Access control | Private sets are visible only to their owners, while public sets are available to logged-in users. |
 | Learning state | User progress is stored per word and reused across flashcards, typed answers, reviews and statistics. |
 | Import support | CSV and JSON imports allow quick creation of larger vocabulary sets. |
-| Test coverage | Django tests cover the main page, authentication, set creation, imports, flashcards and quiz submission. |
+| Test coverage | Django tests cover the main page, authentication, set creation, imports, flashcards, quiz submission and access control for private sets. |
 
 ## Tech Stack
 
@@ -83,7 +83,7 @@ python manage.py test
 Current verification result:
 
 ```text
-Ran 11 tests in 4.424s
+Ran 21 tests in 4.259s
 
 OK
 System check identified no issues (0 silenced).
@@ -224,7 +224,7 @@ Run the Django test suite:
 python manage.py test
 ```
 
-The tests cover the homepage, authentication, set creation, word import, answer checking, flashcards, word editing and quiz submission flow.
+The tests cover the homepage, authentication, set creation, word import, answer checking, flashcards, word editing and quiz submission flow, plus access control: private sets stay hidden from other users, only owners can modify or delete sets and words, and unauthenticated requests are rejected.
 
 ## Repository Structure
 
