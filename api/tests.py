@@ -209,3 +209,133 @@ class AuthAndSetFlowTests(TestCase):
         word.refresh_from_db()
         self.assertEqual(word.en, "computer")
         self.assertEqual(response.data["message"], "Słówko zostało zaktualizowane")
+
+
+class AccessControlTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(username="wlasciciel", password="tajne123")
+        self.other = User.objects.create_user(username="obcy", password="tajne123")
+        self.owner_token = Token.objects.create(user=self.owner)
+        self.other_token = Token.objects.create(user=self.other)
+
+        self.private_set = WordSet.objects.create(name="Prywatny", public=False, owner=self.owner)
+        self.public_set = WordSet.objects.create(name="Publiczny", public=True, owner=self.owner)
+        self.private_word = Word.objects.create(word_set=self.private_set, pl="sekret", en="secret")
+        self.public_word = Word.objects.create(word_set=self.public_set, pl="woda", en="water")
+
+        self.client = APIClient()
+
+    def login_as(self, token):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+
+    def test_endpoints_require_authentication(self):
+        self.assertEqual(self.client.get("/api/sets/").status_code, 401)
+        self.assertEqual(self.client.get(f"/api/sets/{self.public_set.id}/").status_code, 401)
+        self.assertEqual(
+            self.client.post(f"/api/words/{self.public_word.id}/check/", {"answer": "water"}, format="json").status_code,
+            401,
+        )
+
+    def test_set_list_hides_private_sets_of_other_users(self):
+        self.login_as(self.other_token)
+
+        response = self.client.get("/api/sets/")
+
+        self.assertEqual(response.status_code, 200)
+        names = [item["name"] for item in response.data]
+        self.assertIn("Publiczny", names)
+        self.assertNotIn("Prywatny", names)
+
+    def test_set_list_shows_own_private_sets(self):
+        self.login_as(self.owner_token)
+
+        response = self.client.get("/api/sets/")
+
+        names = [item["name"] for item in response.data]
+        self.assertIn("Prywatny", names)
+        self.assertIn("Publiczny", names)
+
+    def test_private_set_is_forbidden_for_other_users(self):
+        self.login_as(self.other_token)
+
+        for url in (
+            f"/api/sets/{self.private_set.id}/",
+            f"/api/sets/{self.private_set.id}/flashcards/",
+            f"/api/sets/{self.private_set.id}/review/",
+            f"/api/sets/{self.private_set.id}/stats/",
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 403)
+
+    def test_private_word_actions_are_forbidden_for_other_users(self):
+        self.login_as(self.other_token)
+
+        check = self.client.post(
+            f"/api/words/{self.private_word.id}/check/", {"answer": "secret"}, format="json"
+        )
+        hard = self.client.post(f"/api/words/{self.private_word.id}/toggle-hard/", {}, format="json")
+
+        self.assertEqual(check.status_code, 403)
+        self.assertEqual(hard.status_code, 403)
+
+    def test_public_set_is_readable_by_other_users(self):
+        self.login_as(self.other_token)
+
+        response = self.client.get(f"/api/sets/{self.public_set.id}/")
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_only_owner_can_modify_a_public_set(self):
+        self.login_as(self.other_token)
+
+        add = self.client.post(
+            f"/api/sets/{self.public_set.id}/add_word/", {"pl": "ogień", "en": "fire"}, format="json"
+        )
+        edit = self.client.post(
+            f"/api/words/{self.public_word.id}/edit/", {"pl": "woda", "en": "juice"}, format="json"
+        )
+        delete_word = self.client.post(f"/api/words/{self.public_word.id}/delete/")
+        delete_set = self.client.delete(f"/api/sets/{self.public_set.id}/delete/")
+
+        self.assertEqual(add.status_code, 403)
+        self.assertEqual(edit.status_code, 403)
+        self.assertEqual(delete_word.status_code, 403)
+        self.assertEqual(delete_set.status_code, 403)
+        self.public_word.refresh_from_db()
+        self.assertEqual(self.public_word.en, "water")
+        self.assertTrue(WordSet.objects.filter(id=self.public_set.id).exists())
+        self.assertEqual(self.public_set.words.count(), 1)
+
+    def test_owner_can_delete_word_and_set(self):
+        self.login_as(self.owner_token)
+
+        word_response = self.client.delete(f"/api/words/{self.public_word.id}/delete/")
+        set_response = self.client.delete(f"/api/sets/{self.public_set.id}/delete/")
+
+        self.assertEqual(word_response.status_code, 200)
+        self.assertEqual(set_response.status_code, 200)
+        self.assertFalse(WordSet.objects.filter(id=self.public_set.id).exists())
+
+    def test_missing_set_returns_404(self):
+        self.login_as(self.owner_token)
+
+        self.assertEqual(self.client.get("/api/sets/999999/").status_code, 404)
+        self.assertEqual(self.client.delete("/api/sets/999999/delete/").status_code, 404)
+
+    def test_private_quiz_is_forbidden_for_other_users(self):
+        self.login_as(self.owner_token)
+        for index in range(3):
+            Word.objects.create(word_set=self.private_set, pl=f"słowo{index}", en=f"word{index}")
+        created = self.client.post(
+            f"/api/sets/{self.private_set.id}/quiz/", {"name": "Prywatny quiz"}, format="json"
+        )
+        self.assertEqual(created.status_code, 200)
+        quiz_id = created.data["quiz_id"]
+
+        self.login_as(self.other_token)
+
+        self.assertEqual(self.client.get(f"/api/quizzes/{quiz_id}/").status_code, 403)
+        self.assertEqual(
+            self.client.post(f"/api/quizzes/{quiz_id}/submit/", {"answers": {}}, format="json").status_code,
+            403,
+        )
