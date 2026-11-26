@@ -5,11 +5,11 @@
 **Team-built Django web application for creating vocabulary sets, learning with flashcards, practicing typed answers, generating quizzes and tracking study progress.**
 
 <p>
-  <img src="https://img.shields.io/badge/Python-Django-7C3AED?style=for-the-badge&logo=python&logoColor=white" alt="Python and Django">
-  <img src="https://img.shields.io/badge/REST%20API-DRF-1F1733?style=for-the-badge" alt="Django REST Framework">
-  <img src="https://img.shields.io/badge/Frontend-Vanilla%20JS-7C3AED?style=for-the-badge&logo=javascript&logoColor=white" alt="Vanilla JavaScript frontend">
-  <img src="https://img.shields.io/badge/Database-SQLite-1F1733?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite database">
-  <img src="https://img.shields.io/badge/Academic-Team%20Project-7C3AED?style=for-the-badge" alt="Academic team project">
+  <img src="https://img.shields.io/badge/Python-Django-2F6B4F?style=for-the-badge&logo=python&logoColor=white" alt="Python and Django">
+  <img src="https://img.shields.io/badge/REST%20API-DRF-1E2B24?style=for-the-badge" alt="Django REST Framework">
+  <img src="https://img.shields.io/badge/Frontend-Vanilla%20JS-2F6B4F?style=for-the-badge&logo=javascript&logoColor=white" alt="Vanilla JavaScript frontend">
+  <img src="https://img.shields.io/badge/Database-SQLite-1E2B24?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite database">
+  <img src="https://img.shields.io/badge/University-team_project-2F6B4F?style=for-the-badge" alt="University team project">
 </p>
 
 <p>
@@ -25,9 +25,9 @@
 
 ## About
 
-This repository contains an academic group project built as a full-stack vocabulary learning application. The app lets users create public or private word sets, import vocabulary from files, practice with flashcards, check typed answers, generate quizzes and monitor learning progress over time.
+A university team project: a full-stack vocabulary learning application. The app lets users create public or private word sets, import vocabulary from files, practice with flashcards, check typed answers, generate quizzes and monitor learning progress over time.
 
-The project was developed by a five-person team. It is presented here as a GitHub-ready portfolio repository with the team context kept explicit. My main contribution was the frontend layer: the browser interface, page structure, responsive layout, visual styling, interactive study views and JavaScript integration with the REST API.
+We built it as a team of five. My main part was the frontend layer: the browser interface, page structure, responsive layout, visual styling, interactive study views and JavaScript integration with the REST API.
 
 ## Project Scope
 
@@ -43,10 +43,10 @@ The project was developed by a five-person team. It is presented here as a GitHu
 
 ## My Role
 
-| Contributor | Main responsibility in this portfolio context |
+| Contributor | Main responsibility |
 | --- | --- |
 | Robert Tworek | Frontend/UI work: Django template structure, responsive dashboard layout, CSS styling, vanilla JavaScript state handling and connecting user flows to API endpoints. |
-| Project team | Backend logic, data model, API behavior, testing and feature integration were developed as part of the five-person academic project. |
+| Project team | Backend logic, data model, API behavior, testing and feature integration were developed by the rest of the team. |
 
 ## What It Shows
 
@@ -266,21 +266,8 @@ vocabulary-learning-app/
 | Maciej Gołębiowski |
 | Konrad Florczak |
 
-## GitHub Notes
-
-This folder is suitable for publishing as a coursework or portfolio repository after initializing Git and pushing it to a remote. Runtime files are already ignored through `.gitignore`, including virtual environments, Python caches, local SQLite databases, coverage output and IDE files.
-
-Recommended final checks before publishing:
-
-- run `python manage.py test` after installing dependencies;
-- make sure `db.sqlite3`, `.venv/`, `__pycache__/` and `.env` are not committed;
-- add screenshots to the repository later if you want the GitHub page to look more visual;
-- set real production environment variables before any public deployment.
-
 ## Future Improvements
 
-- Add GitHub Actions for automated Django tests.
-- Add screenshots or a short demo GIF to the README.
 - Add Docker or a devcontainer for one-command local setup.
 - Add password reset and stronger production deployment settings.
 - Add pagination or filtering for larger public vocabulary collections.
